@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>약국 실장톡</title>
+  <style>
+    :root {
+      --primary-blue: #1f3a66;
+      --bg-light: #cddbe7;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #666666;
+      --success-green: #28a745;
+      --danger-red: #dc3545;
+      --btn-blue: #4a86e8;
+      --border-color: #e0e0e0;
+      --radius: 12px;
+      --shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-light);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--primary-blue);
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      font-weight: bold;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+
+    /* Input Card */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      font-weight: bold;
+      min-width: 60px;
+      white-space: nowrap;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--primary-blue);
+    }
+
+    textarea {
+      height: 80px;
+      resize: none;
+      margin-top: 10px;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: var(--primary-blue);
+    }
+
+    .btn-main {
+      width: 100%;
+      background-color: var(--primary-blue);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-main:active {
+      background-color: #15294a;
+    }
+
+    /* Feed Items */
+    .feed-item {
+      position: relative;
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .user-info {
+      font-weight: bold;
+      color: var(--text-main);
+    }
+
+    .timestamp {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .content {
+      line-height: 1.5;
+      margin-bottom: 15px;
+      white-space: pre-wrap;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+
+    .btn-edit { background-color: #e0e0e0; color: #333; }
+    .btn-complete { background-color: var(--success-green); }
+    .btn-delete { background-color: var(--danger-red); }
+
+    /* Comments Section */
+    .comments-container {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .comment-input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .comment-input {
+      flex: 1;
+      height: 40px !important;
+      padding: 8px 12px !important;
+    }
+
+    .btn-send {
+      background-color: var(--btn-blue);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .load-more {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: bold;
+      color: var(--primary-blue);
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 0 10px; }
+      .card { padding: 15px; }
+    }
+
+    /* Loading Overlay */
+    #loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.1);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span>💬 약국 실장톡</span>
+  </header>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <div class="container">
+    <!-- User Settings -->
+    <div class="card">
+      <div class="input-group">
+        <label>내 이름:</label>
+        <input type="text" id="userName" placeholder="이름을 입력하세요" value="최현석">
+      </div>
+    </div>
+
+    <!-- New Request Form -->
+    <div class="card">
+      <div class="section-title">새로운 요청 / 공지 작성</div>
+      <textarea id="reqContent" placeholder="주문할 약품이나 요청 사항을 남겨주세요."></textarea>
+      <button class="btn-main" onclick="submitRequest()">작성하기</button>
+    </div>
+
+    <!-- Feed List -->
+    <div id="feedList">
+      <!-- Generated via JS -->
+    </div>
+
+    <button class="load-more">과거 및 완료 내역 더보기 (+5건)</button>
+  </div>
+
+  <script>
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', refreshFeed);
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    }
+
+    function refreshFeed() {
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler((data) => {
+          showLoading(false); // 먼저 로딩을 멈춥니다.
+          try {
+            renderFeed(data.requests, data.comments);
+          } catch (e) {
+            console.error('화면 그리기에 실패했습니다:', e);
+            alert('화면을 그리는 도중 오류가 발생했습니다: ' + e.message);
+          }
+        })
+        .withFailureHandler((err) => {
+          showLoading(false);
+          console.error('서버 오류:', err);
+          alert('데이터를 가져오는데 실패했습니다: ' + err.message + '\n\n확장 프로그램 -> Apps Script에서 [setupSheet]를 선택하고 [실행]을 누르셨는지 확인해주세요!');
+        })
+        .getRequests();
+    }
+
+    function renderFeed(requests, comments) {
+      const list = document.getElementById('feedList');
+      list.innerHTML = '';
+      
+      requests.forEach(req => {
+        const reqComments = comments.filter(c => c.requestId === req.id);
+        const card = document.createElement('div');
+        card.className = 'card feed-item';
+        
+        // Date formatting
+        const date = new Date(req.timestamp);
+        const dateStr = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+
+        card.innerHTML = `
+          <div class="feed-header">
+            <span class="user-info">${req.user}</span>
+            <span class="timestamp">${dateStr}</span>
+          </div>
+          <div class="content">${req.content}</div>
+          <div class="actions">
+            <button class="btn-sm btn-edit" onclick="updateStatus('${req.id}', 'edit')">수정</button>
+            <button class="btn-sm btn-complete" onclick="updateStatus('${req.id}', 'complete')">완료 처리</button>
+            <button class="btn-sm btn-delete" onclick="updateStatus('${req.id}', 'delete')">삭제</button>
+          </div>
+          
+          <div class="comments-container">
+            ${reqComments.map(c => `<div style="margin-bottom:5px; font-size:0.9rem;"><strong>${c.user}</strong>: ${c.comment}</div>`).join('')}
+            <div class="comment-input-area">
+              <input type="text" class="comment-input" id="comment_${req.id}" placeholder="댓글 달기">
+              <button class="btn-send" onclick="submitComment('${req.id}')">전송</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function submitRequest() {
+      const user = document.getElementById('userName').value;
+      const content = document.getElementById('reqContent').value;
+      if (!content) return alert('내용을 입력하세요.');
+
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler(() => {
+          document.getElementById('reqContent').value = '';
+          refreshFeed();
+        })
+        .saveRequest({ user, content });
+    }
+
+    function updateStatus(id, action) {
+      if (!confirm(`${action === 'delete' ? '삭제' : '완료 처리'}하시겠습니까?`)) return;
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler(refreshFeed)
+        .updateRequestStatus(id, action);
+    }
+
+    function submitComment(requestId) {
+      const user = document.getElementById('userName').value;
+      const commentInput = document.getElementById('comment_' + requestId);
+      const comment = commentInput.value;
+      if (!comment) return;
+
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler(() => {
+          commentInput.value = '';
+          refreshFeed();
+        })
+        .saveComment({ requestId, user, comment });
+    }
+  </script>
+</body>
+</html>
