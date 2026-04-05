@@ -554,9 +554,9 @@ function App() {
               <div className="p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 <div className="bg-slate-50 rounded-2xl p-3 space-y-3">
                   {SUPPLIES_DATA.flatMap(cat => cat.items).map((item, idx) => (
-                    <div key={idx} className="flex flex-col border-b border-slate-200 last:border-0 pb-2.5 last:pb-0">
-                      <span className="text-[12px] text-slate-500 font-black uppercase tracking-tight mb-0.5">{item.name}</span>
-                      <span className="text-[17px] font-black text-slate-900 leading-tight tracking-tight">{item.specs}</span>
+                    <div key={idx} className="flex flex-col border-b border-slate-200 last:border-0 pb-3 last:pb-0">
+                      <span className="text-[12px] text-slate-500 font-bold uppercase tracking-tight mb-0.5 leading-none">{item.name}</span>
+                      <span className="text-[20px] font-black text-slate-900 leading-tight tabular-nums">{item.specs}</span>
                     </div>
                   ))}
                 </div>
