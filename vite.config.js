@@ -10,8 +10,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: '실장님 톡 (Sylzang Talk)',
-        short_name: '실장님톡',
+        name: '실장톡 (Sylzang Talk)',
+        short_name: '실장톡',
         description: '약국용 실시간 커뮤니케이션 도구',
         theme_color: '#3b82f6',
         icons: [
