@@ -40,6 +40,47 @@ function cn(...inputs) {
 const TELEGRAM_TOKEN = '8768041342:AAH0xNgULH_470lFH2v7VYJcm5J-cHAozg4';
 const TELEGRAM_CHAT_ID = '8635739681';
 
+const SUPPLIES_DATA = [
+  {
+    category: "💊 조제 / 포장",
+    items: [
+      { name: "ATC", specs: "롤, 리본" },
+      { name: "약포지", specs: "팜툴스용, 예제용" },
+      { name: "공병", specs: "30정, 100정, 차광" }
+    ]
+  },
+  {
+    category: "🧴 투약병 (액제용)",
+    items: [
+      { name: "긴마개 투약병", specs: "12cc, 20cc, 30cc" },
+      { name: "일반 투약병", specs: "20, 30, 50, 60, 100, 120, 150, 200cc" }
+    ]
+  },
+  {
+    category: "🛍️ 봉투 / 지퍼백",
+    items: [
+      { name: "지퍼백", specs: "6*9, 10*16, 15*23, 20*30" },
+      { name: "차광지퍼백", specs: "10*16, 15*21" },
+      { name: "봉투", specs: "1박스, 2박스, 종이봉투, 전산봉투" }
+    ]
+  },
+  {
+    category: "🖨️ 전산 / 사무",
+    items: [
+      { name: "라벨 용지", specs: "40*25, 100*80" },
+      { name: "프린터 잉크", specs: "검정, 파랑, 노랑, 빨강, 유지보수킷" },
+      { name: "용지", specs: "카드단말기, 가격표시기" }
+    ]
+  },
+  {
+    category: "🧼 위생 / 소모품",
+    items: [
+      { name: "위생용품", specs: "핸드타월, 점보롤, 물티슈, 세모금컵" },
+      { name: "니트릴장갑", specs: "XS, S, M" }
+    ]
+  }
+];
+
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -49,6 +90,8 @@ function App() {
   const [msgLimit, setMsgLimit] = useState(3);
   const [showCompleted, setShowCompleted] = useState(false);
   const [editingComment, setEditingComment] = useState(null);
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [showSuppliesModal, setShowSuppliesModal] = useState(false);
   const scrollRef = useRef(null);
 
   // 알림 권한 요청 및 토큰 가져오기
@@ -170,6 +213,18 @@ function App() {
     }
   };
 
+  const handleUpdateMessage = async () => {
+    if (!editingMessage) return;
+    try {
+      await updateDoc(doc(db, 'talks', editingMessage.id), {
+        content: editingMessage.content
+      });
+      setEditingMessage(null);
+    } catch (error) {
+      console.error("Error updating message:", error);
+    }
+  };
+
   const handleDeleteComment = async (messageId, index) => {
     if (!window.confirm('답글을 삭제하시겠습니까?')) return;
     try {
@@ -249,7 +304,7 @@ function App() {
     <div className="flex flex-col h-screen max-w-2xl mx-auto bg-slate-200 shadow-xl font-sans overflow-hidden">
 
       {/* Header */}
-      <header className="bg-white border-b border-slate-300 px-5 py-3 flex items-center justify-between z-30 shadow-sm shrink-0">
+      <header className="bg-white border-b border-slate-300 px-5 py-2 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-black text-slate-800 tracking-tighter">약국 실장톡</h1>
           <div className="flex items-center gap-1 ml-1 scale-90">
@@ -257,13 +312,22 @@ function App() {
             <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">LIVE</span>
           </div>
         </div>
-        <input
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          placeholder="이름"
-          className="bg-slate-100 border-none rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-primary-500 w-20 text-center font-bold text-slate-700"
-        />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSuppliesModal(true)}
+            className="flex items-center gap-1 px-2.5 py-1 bg-slate-800 text-white text-[11px] font-bold rounded-lg hover:bg-slate-900 transition-colors active:scale-95 border border-slate-700 shadow-sm"
+          >
+            <PlusCircle size={12} />
+            <span>소모품</span>
+          </button>
+          <input
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="이름"
+            className="bg-slate-100 border-none rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-primary-500 w-16 text-center font-bold text-slate-700"
+          />
+        </div>
       </header>
 
       {/* Main Board Area */}
@@ -271,7 +335,7 @@ function App() {
         {/* Scrollable Feed (History Top - Chronological Order) */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3 pb-3 space-y-3 custom-scrollbar"
+          className="flex-1 overflow-y-auto p-2 pb-2 space-y-2 custom-scrollbar"
         >
           <AnimatePresence initial={false}>
             {filteredMessages.map((message) => (
@@ -285,7 +349,7 @@ function App() {
                 )}
               >
                 {/* Card Header (Compact) */}
-                <div className="px-4 py-2 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                <div className="px-4 py-1.5 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
                   <span className="text-primary-800 font-bold text-[15px]">{message.user}</span>
                   <div className="flex items-center gap-2">
                     {message.status === 'completed' && (
@@ -296,19 +360,46 @@ function App() {
                 </div>
 
                 {/* Card Content (Compact) */}
-                <div className="px-4 py-3">
-                  <p className={cn(
-                    "text-slate-800 text-[15px] leading-snug whitespace-pre-wrap font-medium",
-                    message.status === 'completed' && "line-through text-slate-500"
-                  )}>
-                    {message.content}
-                  </p>
+                <div className="px-4 py-2">
+                  {editingMessage?.id === message.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        autoFocus
+                        className="w-full p-2 text-[15px] border border-primary-200 rounded-lg outline-none focus:ring-2 focus:ring-primary-500 bg-slate-50"
+                        value={editingMessage.content}
+                        onChange={(e) => setEditingMessage({ ...editingMessage, content: e.target.value })}
+                        rows="3"
+                      />
+                      <div className="flex justify-end gap-1.5">
+                        <button
+                          onClick={() => setEditingMessage(null)}
+                          className="px-3 py-1 text-xs font-bold text-slate-500 bg-slate-100 rounded-md"
+                        >취소</button>
+                        <button
+                          onClick={handleUpdateMessage}
+                          className="px-3 py-1 text-xs font-bold text-white bg-primary-500 rounded-md"
+                        >저장</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className={cn(
+                      "text-slate-800 text-[15px] leading-snug whitespace-pre-wrap font-medium",
+                      message.status === 'completed' && "line-through text-slate-500"
+                    )}>
+                      {message.content}
+                    </p>
+                  )}
 
                   {/* Action Buttons (Compact) */}
-                  <div className="flex items-center justify-end gap-1.5 mt-3">
-                    <button className="px-2 py-1 text-xs text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-md transition-colors border border-slate-100">
-                      수정
-                    </button>
+                  <div className="flex items-center justify-end gap-1.5 mt-2">
+                    {!editingMessage && (
+                      <button
+                        onClick={() => setEditingMessage({ id: message.id, content: message.content })}
+                        className="px-2 py-1 text-xs text-slate-500 bg-slate-50 hover:bg-slate-100 rounded-md transition-colors border border-slate-100"
+                      >
+                        수정
+                      </button>
+                    )}
                     <button
                       onClick={() => toggleStatus(message.id, message.status)}
                       className={cn(
@@ -330,7 +421,7 @@ function App() {
                 </div>
 
                 {/* Comments Section (Compact) */}
-                <div className="bg-slate-100/40 px-4 py-3 border-t border-slate-50 space-y-2">
+                <div className="bg-slate-100/40 px-4 py-2 border-t border-slate-50 space-y-1.5">
                   {message.comments?.map((comment, idx) => (
                     <div key={idx} className="group flex flex-col items-start gap-0.5 relative">
                       <div className="flex items-center gap-2 px-0.5">
@@ -375,7 +466,7 @@ function App() {
                   ))}
 
                   {/* Comment Input (Very Compact) */}
-                  <div className="flex items-center gap-1.5 mt-2">
+                  <div className="flex items-center gap-1.5 mt-1.5">
                     <input
                       type="text"
                       value={commentInputs[message.id] || ''}
@@ -402,7 +493,7 @@ function App() {
           <div className="py-1 flex justify-center">
             <button
               onClick={handleLoadMore}
-              className="px-8 py-2.5 bg-white/70 border border-slate-300/70 rounded-xl text-[12px] font-bold text-slate-600 hover:bg-white hover:text-primary-700 hover:border-primary-300 transition-all shadow-md active:scale-95"
+              className="px-8 py-2 bg-white/70 border border-slate-300/70 rounded-xl text-[12px] font-bold text-slate-600 hover:bg-white hover:text-primary-700 hover:border-primary-300 transition-all shadow-md active:scale-95"
             >
               {showCompleted ? '과거 내역 더 불러오기 (+5건)' : '과거 및 완료 내역 보기 (+5건)'}
             </button>
@@ -410,10 +501,10 @@ function App() {
         </div>
 
         {/* New Post Area (Bottom - Sticky Card) - Dynamic size */}
-        <div className="bg-slate-200 border-t border-slate-300 p-1.5 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] z-20">
-          <section className="bg-white rounded-xl shadow-xl border border-slate-300 p-2.5 max-w-xl mx-auto">
-            <h2 className="text-[13px] font-black text-slate-800 mb-1.5 pl-2 border-l-2 border-primary-500">새로운 요청 / 공지</h2>
-            <form onSubmit={handleSend} className="space-y-1.5">
+        <div className="bg-slate-200 border-t border-slate-300 p-1 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] z-20">
+          <section className="bg-white rounded-xl shadow-xl border border-slate-300 p-2 max-w-xl mx-auto">
+            <h2 className="text-[13px] font-black text-slate-800 mb-1 pl-2 border-l-2 border-primary-500">새로운 요청 / 공지</h2>
+            <form onSubmit={handleSend} className="space-y-1">
               <textarea
                 rows="3"
                 value={input}
@@ -438,9 +529,50 @@ function App() {
         </div>
       </main>
 
-      <div className="bg-slate-200 text-[10px] text-slate-400 py-1 text-center font-medium">
-        © 약국 실장톡 All rights reserved.
-      </div>
+      {/* Supplies Modal */}
+      <AnimatePresence>
+        {showSuppliesModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSuppliesModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden"
+            >
+              <div className="p-5 border-b border-slate-100 flex items-center justify-center bg-white sticky top-0 z-10">
+                <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                  📋 약국 소모품 목록
+                </h3>
+              </div>
+              <div className="p-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div className="bg-slate-50 rounded-2xl p-3 space-y-3">
+                  {SUPPLIES_DATA.flatMap(cat => cat.items).map((item, idx) => (
+                    <div key={idx} className="flex flex-col border-b border-slate-200 last:border-0 pb-2 last:pb-0">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{item.name}</span>
+                      <span className="text-[15px] font-bold text-slate-800 leading-tight">{item.specs}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="p-4 bg-slate-50/50">
+                <button
+                  onClick={() => setShowSuppliesModal(false)}
+                  className="w-full py-3 bg-slate-800 text-white rounded-2xl font-black shadow-lg active:scale-[0.98] transition-all"
+                >
+                  닫기
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
