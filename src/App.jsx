@@ -10,6 +10,7 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  setDoc,
   serverTimestamp,
   arrayUnion,
   limitToLast
@@ -62,8 +63,11 @@ function App() {
             vapidKey: 'BOM26upQA_QBrurghRO7mXz3gtxpRMAlLPM_Z6vF0goJK7KEpKhdQFmySpQNvFCCnj2iCKhep_mk8AdHc_FhiJU'
           });
           if (token) {
-            console.log('FCM Token:', token);
-            // TODO: 이 토큰을 Firestore의 users 컬렉션 등에 저장하세요.
+            // 토큰을 Firestore에 저장 (중복 방지)
+            await setDoc(doc(db, 'fcm_tokens', token), {
+              user: userName,
+              updatedAt: serverTimestamp()
+            });
           }
         }
       } catch (error) {
