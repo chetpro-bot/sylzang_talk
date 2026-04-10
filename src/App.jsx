@@ -301,15 +301,16 @@ function App() {
     : messages.filter(m => m.status !== 'completed');
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-slate-200 shadow-xl font-sans overflow-hidden">
+    <div className="flex flex-col h-[100dvh] max-w-2xl mx-auto bg-slate-200 shadow-xl font-sans overflow-hidden">
 
       {/* Header */}
-      <header className="bg-white border-b border-slate-300 px-5 py-2 flex items-center justify-between z-30 shadow-sm shrink-0">
+      <header className="bg-white border-b border-slate-300 px-5 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div className="flex items-center gap-2">
           <h1 className="text-lg font-black text-slate-800 tracking-tighter">약국 실장톡</h1>
           <div className="flex items-center gap-1 ml-1 scale-90">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             <span className="text-[9px] text-slate-500 font-bold whitespace-nowrap">LIVE</span>
+            <span className="text-[8px] text-slate-400 font-medium ml-1">v0.0.2</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -501,7 +502,7 @@ function App() {
         </div>
 
         {/* New Post Area (Bottom - Sticky Card) - Dynamic size */}
-        <div className="bg-slate-200 border-t border-slate-300 p-1 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] z-20">
+        <div className="bg-slate-200 border-t border-slate-300 p-2 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] z-20 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <section className="bg-white rounded-xl shadow-xl border border-slate-300 p-2 max-w-xl mx-auto">
             <h2 className="text-[13px] font-black text-slate-800 mb-1 pl-2 border-l-2 border-primary-500">새로운 요청 / 공지</h2>
             <form onSubmit={handleSend} className="space-y-1">
